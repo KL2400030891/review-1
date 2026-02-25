@@ -10,7 +10,8 @@ const JobApplicants = () => {
             try {
                 // In a real app, we'd fetch for a specific job or all jobs of the employer
                 // For demo, we fetch all applications (the backend route needs careful filtering)
-                const res = await axios.get('http://localhost:5000/api/applications/my', {
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const res = await axios.get(`${apiUrl}/api/applications/my`, {
                     headers: { 'x-auth-token': localStorage.getItem('token') }
                 });
                 setApplications(res.data);
@@ -25,7 +26,8 @@ const JobApplicants = () => {
 
     const updateStatus = async (id, status) => {
         try {
-            await axios.patch(`http://localhost:5000/api/applications/${id}/status`, { status }, {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.patch(`${apiUrl}/api/applications/${id}/status`, { status }, {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             setApplications(applications.map(app => app._id === id ? { ...app, status } : app));

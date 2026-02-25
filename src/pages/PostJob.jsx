@@ -16,7 +16,8 @@ const PostJob = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/jobs',
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.post(`${apiUrl}/api/jobs`,
                 { ...formData, requirements: formData.requirements.split(',') },
                 { headers: { 'x-auth-token': localStorage.getItem('token') } }
             );
