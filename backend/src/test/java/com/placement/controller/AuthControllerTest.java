@@ -33,9 +33,10 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @SuppressWarnings("null")
     void register_shouldReturnCreated() throws Exception {
         // Arrange
-        RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123", User.Role.STUDENT, "Computer Science", "2025", 8.5, null, null);
+        RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123", User.Role.STUDENT, "Computer Science", "2025", 8.5, "", "");
         AuthResponse response = AuthResponse.builder()
             .accessToken("token")
             .tokenType("Bearer")
@@ -58,6 +59,7 @@ class AuthControllerTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void login_shouldReturnOk() throws Exception {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
