@@ -4,12 +4,9 @@
   "description": "Placement Interaction System - Full Stack Application",
   "private": true,
   "workspaces": [
-    "frontend",
-    "backend"
+    "frontend"
   ],
-  "scripts": {
-    "dev": "echo 'Run frontend (cd frontend && npm run dev) and backend (cd backend && mvn spring-boot:run) in separate terminals'",
-    "build": "echo 'Frontend and backend build separately: frontend (npm run build) and backend (mvn package)'",
-    "test": "echo 'To test: cd frontend && npm run test (if configured) OR cd backend && mvn test'"
+  "engines": {
+    "node": "18.x"
   }
 }
