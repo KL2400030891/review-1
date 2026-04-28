@@ -34,17 +34,20 @@ services:
           property: password
     healthCheckPath: /
     
-  # Frontend Service (React/Vite)
-  - type: static_site
+  # Frontend Service (React/Vite) - Web Service with Node
+  - type: web
     name: placement-system-frontend
-    buildCommand: |
-      cd frontend && \
-      npm install && \
-      npm run build
-    staticPublishPath: frontend/dist
+    env: node
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm install -g serve && serve -s dist -l 3000
     envVars:
       - key: VITE_API_URL
         value: https://placement-system-backend.onrender.com
+      - key: NODE_ENV
+        value: production
 
 # Database
 databases:

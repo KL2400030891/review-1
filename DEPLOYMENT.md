@@ -42,9 +42,11 @@ This project is configured for deployment on [Render.com](https://render.com). F
 - Database: PostgreSQL
 
 **Frontend Service (placement-system-frontend)**
-- Build: Vite + React
-- Command: `npm install && npm run build`
-- Static files served from: `frontend/dist`
+- Runtime: Node.js 18
+- Root Directory: `frontend/`
+- Build: `npm install && npm run build`
+- Start: `serve -s dist -l 3000` (serves Vite build using `serve` package)
+- Serves static files from: `frontend/dist`
 - API calls to backend via `VITE_API_URL`
 
 ### Database Configuration
