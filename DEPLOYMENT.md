@@ -9,45 +9,75 @@ This project is configured for deployment on [Render.com](https://render.com). F
 2. Connect your GitHub repository to Render
 3. Have a PostgreSQL database ready (Render provides free PostgreSQL)
 
+### Important: How Render Detects Services
+
+Render.com reads the `render.yaml` file at the root of your repository to identify and deploy multiple services:
+
+- **Backend Service**: Java 17 + Spring Boot + PostgreSQL
+- **Frontend Service**: Node.js 18 + React/Vite + serve
+- **Database**: PostgreSQL (automatically provisioned)
+
+The `render.yaml` file specifies:
+- Build commands for each service (including `cd` into subdirectories)
+- Start commands to run each service
+- Environment variables and database connections
+- Port configurations and health checks
+
+### Root package.json Role
+
+The root `package.json` file defines this as a monorepo using Node.js workspaces. This prevents Render from attempting to build the root directory as a standalone Node application.
+
 ### Deployment Steps
 
-1. **Connect Repository**
-   - Go to Render Dashboard
-   - Click "New +" and select "Web Service"
-   - Connect your GitHub repository: `https://github.com/KL2400030891/review-1`
+1. **Connect Repository to Render**
+   - Go to https://dashboard.render.com
+   - Click "New +" → "Web Service" or "PostgreSQL"
+   - Connect GitHub repository: `https://github.com/KL2400030891/review-1`
+   - Choose the `master` branch
 
-2. **Configure Services**
-   - Render will auto-detect the `render.yaml` file
-   - It will automatically create:
-     - Backend service (Spring Boot on Java 17)
-     - Frontend service (Static site)
-     - PostgreSQL database
+2. **Render Auto-Discovery**
+   - Render automatically detects `render.yaml`
+   - Services are created based on the YAML configuration
+   - Database is provisioned with credentials automatically injected
 
-3. **Set Environment Variables**
-   - `JWT_SECRET`: Generate a strong random string for JWT signing
-   - `CORS_ALLOWED_ORIGINS`: Your frontend URL (auto-set by render.yaml)
-   - Other variables are configured in `render.yaml`
+3. **Configure Environment Variables** (Optional - mostly auto-configured)
+   - `JWT_SECRET`: Change to a strong random string in production
+   - `CORS_ALLOWED_ORIGINS`: Frontend URL (auto-set in render.yaml)
+   - All database credentials are auto-injected from the PostgreSQL service
+   - Node.js and Java versions are specified in render.yaml
 
 4. **Deploy**
-   - Push your code to the `master` branch
-   - Render will automatically build and deploy
+   - Push to `master` branch
+   - Render automatically detects changes and redeploys
+   - Check logs in Render Dashboard for build/deployment status
 
-### Service Details
+### Service Configuration in render.yaml
 
 **Backend Service (placement-system-backend)**
 - Runtime: Java 17
-- Build: Maven via `mvn clean package`
-- Start: `java -jar target/placement-system-1.0.0.jar`
-- Port: 10000 (Render assigns dynamically)
-- Database: PostgreSQL
+- Build Command: `cd backend && mvn clean package -DskipTests`
+  - Cleans previous builds, compiles code, and packages into JAR
+  - Skips tests for faster deployment
+  - Output: `backend/target/placement-system-1.0.0.jar`
+- Start Command: `cd backend && java -jar target/placement-system-1.0.0.jar`
+  - Runs the Spring Boot application
+  - Uses `SPRING_PROFILES_ACTIVE=prod` profile
+  - Connects to PostgreSQL database via injected environment variables
+- Health Check: `/` endpoint (Spring Boot default)
+- Port: Dynamically assigned by Render (set via `SERVER_PORT` env var)
 
 **Frontend Service (placement-system-frontend)**
 - Runtime: Node.js 18
-- Root Directory: `frontend/`
-- Build: `npm install && npm run build`
-- Start: `serve -s dist -l 3000` (serves Vite build using `serve` package)
-- Serves static files from: `frontend/dist`
-- API calls to backend via `VITE_API_URL`
+- Build Command: `cd frontend && npm ci && npm run build`
+  - `npm ci` (clean install) for reproducible builds
+  - Runs Vite build process
+  - Output: `frontend/dist/` (optimized static files)
+- Start Command: `cd frontend && npm install -g serve && serve -s dist -l 3000`
+  - Installs `serve` package globally
+  - Serves built Vite frontend as static site
+  - Port: 3000
+- API URL: Points to backend service via `VITE_API_URL` environment variable
+- Environment: Production mode (optimized builds)
 
 ### Database Configuration
 
