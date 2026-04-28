@@ -1,0 +1,53 @@
+services:
+  # Backend Service (Spring Boot)
+  - type: web
+    name: placement-system-backend
+    env: java
+    region: oregon
+    plan: free
+    buildCommand: |
+      cd backend && \
+      mvn clean package -DskipTests
+    startCommand: |
+      cd backend && \
+      java -jar target/placement-system-1.0.0.jar
+    envVars:
+      - key: JAVA_VERSION
+        value: 17
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SERVER_PORT
+        value: 10000
+      - key: SPRING_JPA_DATABASE_PLATFORM
+        value: org.hibernate.dialect.PostgreSQLDialect
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: placement-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: placement-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: placement-db
+          property: password
+    healthCheckPath: /
+    
+  # Frontend Service (React/Vite)
+  - type: static_site
+    name: placement-system-frontend
+    buildCommand: |
+      cd frontend && \
+      npm install && \
+      npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://placement-system-backend.onrender.com
+
+# Database
+databases:
+  - name: placement-db
+    plan: free
+    ipAllowList: []
